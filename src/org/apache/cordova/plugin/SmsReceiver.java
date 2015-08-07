@@ -30,9 +30,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
+import android.util.Log;
 
 public class SmsReceiver extends BroadcastReceiver {
-	
 
 	public static final String SMS_EXTRA_NAME = "pdus";
 	private CallbackContext callback_receive;
@@ -40,7 +40,7 @@ public class SmsReceiver extends BroadcastReceiver {
 	
 	// This broadcast boolean is used to continue or not the message broadcast
 	// to the other BroadcastReceivers waiting for an incoming SMS (like the native SMS app)
-	private boolean broadcast = false;
+	private boolean broadcast = true;
 	
 	@Override
 	public void onReceive(Context ctx, Intent intent) {
@@ -55,11 +55,14 @@ public class SmsReceiver extends BroadcastReceiver {
 			for (int i=0; i < smsExtra.length; i++)
 			{
 				SmsMessage sms = SmsMessage.createFromPdu((byte[]) smsExtra[i]);
-				if(this.isReceiving && this.callback_receive != null) {
+				if(this.isReceiving) {
                     String formattedMsg = sms.getMessageBody();
-		        	PluginResult result = new PluginResult(PluginResult.Status.OK, formattedMsg);
-		           	result.setKeepCallback(true);
-		            callback_receive.sendPluginResult(result);
+		        	if(this.callback_receive != null) {
+			 		    PluginResult result = new PluginResult(PluginResult.Status.OK, formattedMsg);
+			           	result.setKeepCallback(true);
+			            callback_receive.sendPluginResult(result);       		
+		        	}
+
 				}
 			}
 
